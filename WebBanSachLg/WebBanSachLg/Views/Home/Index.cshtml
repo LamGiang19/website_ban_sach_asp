@@ -191,11 +191,19 @@
 
 @section Scripts {
     <script>
-        // Horizontal scroll cho product sections
-        $('.product-scroll').each(function() {
-            if ($(this).width() < $(this)[0].scrollWidth) {
-                $(this).css('overflow-x', 'auto');
-            }
+        // Horizontal scroll cho product sections - chỉ chạy một lần khi DOM ready
+        $(document).ready(function() {
+            // Kiểm tra và set overflow cho product scroll
+            $('.product-scroll').each(function() {
+                const $this = $(this);
+                // Chỉ set nếu chưa được set
+                if (!$this.data('scroll-initialized')) {
+                    if (this.scrollWidth > $this.width()) {
+                        $this.css('overflow-x', 'auto');
+                    }
+                    $this.data('scroll-initialized', true);
+                }
+            });
         });
     </script>
 }

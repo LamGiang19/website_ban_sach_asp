@@ -1,10 +1,18 @@
 ﻿// Giỏ hàng
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-// Cập nhật số lượng giỏ hàng
+// Flag để tránh chạy nhiều lần
+let isInitialized = false;
+let lastCartCount = -1;
+
+// Cập nhật số lượng giỏ hàng - tối ưu để tránh re-render
 function updateCartCount() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    $('.cart-count').text(totalItems);
+    // Chỉ update nếu số lượng thay đổi
+    if (totalItems !== lastCartCount) {
+        $('.cart-count').text(totalItems);
+        lastCartCount = totalItems;
+    }
 }
 
 // Thêm sản phẩm vào giỏ hàng
@@ -43,6 +51,7 @@ function updateCartQuantity(sachId, quantity) {
     if (item) {
         item.quantity = Math.max(1, parseInt(quantity));
         localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
         updateCartModal();
     }
 }
@@ -51,6 +60,8 @@ function updateCartQuantity(sachId, quantity) {
 function updateCartModal() {
     const cartItems = $('#cartItems');
     const cartTotal = $('#cartTotal');
+    
+    if (!cartItems.length || !cartTotal.length) return;
     
     if (cart.length === 0) {
         cartItems.html('<p class="text-center text-muted">Giỏ hàng của bạn đang trống</p>');
@@ -99,6 +110,9 @@ function updateCartModal() {
 
 // Hiển thị thông báo
 function showNotification(message) {
+    // Xóa notification cũ nếu có
+    $('.toast-notification').remove();
+    
     // Tạo toast notification
     const toast = $(`
         <div class="toast-notification">
@@ -110,51 +124,20 @@ function showNotification(message) {
     `);
     
     $('body').append(toast);
-    toast.fadeIn();
+    toast.fadeIn(300);
     
     setTimeout(() => {
-        toast.fadeOut(() => toast.remove());
+        toast.fadeOut(300, function() {
+            $(this).remove();
+        });
     }, 3000);
 }
 
-// Xử lý sự kiện khi DOM ready
-$(document).ready(function() {
-    // Cập nhật số lượng giỏ hàng khi trang load
-    updateCartCount();
-    
-    // Xử lý click nút thêm vào giỏ hàng
-    $(document).on('click', '.add-to-cart', function() {
-        const sachId = $(this).data('id');
-        const tenSach = $(this).closest('.product-card').find('.product-title a').text().trim();
-        const gia = parseFloat($(this).data('price'));
-        const hinhAnh = $(this).closest('.product-card').find('.product-image img').attr('src');
-        
-        addToCart(sachId, tenSach, gia, hinhAnh);
-    });
-    
-    // Cập nhật modal khi mở
-    $('#cartModal').on('show.bs.modal', function() {
-        updateCartModal();
-    });
-    
-    // Xử lý click category
-    $('.category-link').on('click', function(e) {
-        e.preventDefault();
-        $('.category-link').removeClass('active');
-        $(this).addClass('active');
-        
-        // TODO: Filter sách theo danh mục
-        const categoryId = $(this).data('category-id');
-        if (categoryId) {
-            // Gọi API hoặc reload trang với filter
-            console.log('Filter by category:', categoryId);
-        }
-    });
-});
-
-// CSS cho toast notification
-const toastStyle = `
-    <style>
+// CSS cho toast notification - chỉ append một lần
+if (typeof document !== 'undefined' && !document.getElementById('toast-notification-style')) {
+    const toastStyle = document.createElement('style');
+    toastStyle.id = 'toast-notification-style';
+    toastStyle.textContent = `
         .toast-notification {
             position: fixed;
             top: 20px;
@@ -175,6 +158,49 @@ const toastStyle = `
         .toast-content i {
             font-size: 20px;
         }
-    </style>
-`;
-$('head').append(toastStyle);
+    `;
+    document.head.appendChild(toastStyle);
+}
+
+// Xử lý sự kiện khi DOM ready - chỉ chạy một lần
+$(document).ready(function() {
+    // Chỉ khởi tạo một lần
+    if (isInitialized) return;
+    isInitialized = true;
+    
+    // Cập nhật số lượng giỏ hàng khi trang load
+    updateCartCount();
+    
+    // Xử lý click nút thêm vào giỏ hàng - dùng event delegation
+    $(document).on('click', '.add-to-cart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const $btn = $(this);
+        const sachId = $btn.data('id');
+        const tenSach = $btn.data('name') || $btn.closest('.product-card').find('.product-title a').text().trim();
+        const gia = parseFloat($btn.data('price'));
+        const hinhAnh = $btn.data('image') || $btn.closest('.product-card').find('.product-image img').attr('src');
+        
+        if (sachId && gia) {
+            addToCart(sachId, tenSach, gia, hinhAnh);
+        }
+    });
+    
+    // Cập nhật modal khi mở
+    $('#cartModal').on('show.bs.modal', function() {
+        updateCartModal();
+    });
+    
+    // Xử lý click category
+    $('.category-link').on('click', function(e) {
+        e.preventDefault();
+        $('.category-link').removeClass('active');
+        $(this).addClass('active');
+        
+        const categoryId = $(this).data('category-id');
+        if (categoryId) {
+            console.log('Filter by category:', categoryId);
+        }
+    });
+});
