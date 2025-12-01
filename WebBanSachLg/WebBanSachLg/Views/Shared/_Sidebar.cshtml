@@ -1,0 +1,41 @@
+@using WebBanSachLg.Database
+
+@{
+    // Danh mục sẽ được truyền từ ViewBag hoặc controller
+    var danhMucs = ViewBag.DanhMucs as List<DanhMuc> ?? new List<DanhMuc>();
+}
+
+<div class="sidebar-content">
+    <h5 class="sidebar-title">Danh mục sản phẩm</h5>
+    <ul class="category-list">
+        <li>
+            <a href="#" class="category-link active">
+                <i class="fas fa-fire"></i> Sách bán chạy <span class="badge bg-danger">hot</span>
+            </a>
+        </li>
+        @foreach (var danhMuc in danhMucs)
+        {
+            <li>
+                <a href="#" class="category-link" data-category-id="@danhMuc.Id">
+                    @danhMuc.TenDanhMuc
+                </a>
+            </li>
+        }
+        <li>
+            <a href="#" class="category-link">
+                <i class="fas fa-chevron-down"></i> Xem thêm các mục
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-section mt-4">
+        <h6 class="sidebar-subtitle">Sách đồng giá</h6>
+        <ul class="price-list">
+            <li><a href="#">Sách đồng giá 9K</a></li>
+            <li><a href="#">Sách đồng giá 19K</a></li>
+            <li><a href="#">Sách đồng giá 29K</a></li>
+            <li><a href="#">Sách đồng giá 49K</a></li>
+        </ul>
+    </div>
+</div>
+

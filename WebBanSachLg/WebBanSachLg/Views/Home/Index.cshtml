@@ -1,8 +1,112 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ - Mua & Bán Sách Online";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Banner Section -->
+<section class="banner-section mb-4">
+    <div class="container-fluid">
+        <div class="banner-slider">
+            <div class="banner-item">
+                <div class="banner-content text-center p-5 bg-primary text-white rounded">
+                    <h1 class="display-4">Mua & Bán Sách Online</h1>
+                    <p class="lead">Giá tốt nhất - Chất lượng đảm bảo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sách Bán Chạy -->
+<section class="product-section mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">
+            <i class="fas fa-fire text-danger"></i> SÁCH BÁN CHẠY
+        </h2>
+        <a href="#" class="btn btn-outline-primary">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="row">
+        @if (ViewBag.SachBanChay != null)
+        {
+            @foreach (var sach in (List<WebBanSachLg.Database.Sach>)ViewBag.SachBanChay)
+            {
+                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                    @await Html.PartialAsync("_SachCard", sach)
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<!-- Sách Tiểu Thuyết -->
+<section class="product-section mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">SÁCH TIỂU THUYẾT</h2>
+        <a href="#" class="btn btn-outline-primary">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="row">
+        @if (ViewBag.SachTieuThuyet != null)
+        {
+            @foreach (var sach in (List<WebBanSachLg.Database.Sach>)ViewBag.SachTieuThuyet)
+            {
+                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                    @await Html.PartialAsync("_SachCard", sach)
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<!-- Sách Khoa Học -->
+<section class="product-section mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">SÁCH KHOA HỌC</h2>
+        <a href="#" class="btn btn-outline-primary">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="row">
+        @if (ViewBag.SachKhoaHoc != null)
+        {
+            @foreach (var sach in (List<WebBanSachLg.Database.Sach>)ViewBag.SachKhoaHoc)
+            {
+                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                    @await Html.PartialAsync("_SachCard", sach)
+                </div>
+            }
+        }
+    </div>
+</section>
+
+<!-- Sách Thiếu Nhi -->
+<section class="product-section mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">SÁCH THIẾU NHI</h2>
+        <a href="#" class="btn btn-outline-primary">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+    </div>
+    <div class="row">
+        @if (ViewBag.SachThieuNhi != null)
+        {
+            @foreach (var sach in (List<WebBanSachLg.Database.Sach>)ViewBag.SachThieuNhi)
+            {
+                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                    @await Html.PartialAsync("_SachCard", sach)
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Xử lý thêm vào giỏ hàng
+        $(document).on('click', '.add-to-cart', function() {
+            var sachId = $(this).data('id');
+            var price = $(this).data('price');
+            
+            // TODO: Gọi API để thêm vào giỏ hàng
+            alert('Đã thêm sản phẩm vào giỏ hàng!');
+            
+            // Cập nhật số lượng giỏ hàng
+            var currentCount = parseInt($('.cart-count').text()) || 0;
+            $('.cart-count').text(currentCount + 1);
+        });
+    </script>
+}
