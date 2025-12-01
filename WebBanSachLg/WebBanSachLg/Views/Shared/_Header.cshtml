@@ -1,64 +1,93 @@
+@using WebBanSachLg.Database
 
 <header class="site-header">
-    <div class="header-top">
+    <!-- Top Bar - Orange -->
+    <div class="header-top bg-orange">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <div class="header-contact">
+                    <div class="header-contact text-white">
                         <span><i class="fas fa-phone"></i> Bạn cần hỗ trợ: <strong>0828899333</strong></span>
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
-                    <div class="header-links">
-                        <a href="#" class="btn-link">Đăng ký</a> / 
-                        <a href="#" class="btn-link">Đăng nhập</a>
+                    <div class="header-links text-white">
+                        <a href="#" class="text-white me-2"><i class="fas fa-user"></i> Đăng ký / Đăng nhập</a>
+                        <button class="btn btn-sm btn-cart-top text-white" data-bs-toggle="modal" data-bs-target="#cartModal">
+                            <i class="fas fa-shopping-cart"></i> Giỏ hàng <span class="cart-count">0</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <!-- Main Navigation - White -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
             <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                <strong>Mua & Bán Sách Online</strong>
+                <div class="logo-wrapper">
+                    <span class="logo-icon">B</span>
+                    <strong class="logo-text">VUA SÁCH CŨ</strong>
+                </div>
             </a>
+            
+            <!-- Search Bar -->
+            <div class="search-bar-wrapper flex-grow-1 mx-4">
+                <form class="search-form" asp-controller="Sach" asp-action="Search" method="get">
+                    <div class="input-group">
+                        <select class="form-select category-select" name="categoryId" style="max-width: 150px;">
+                            <option value="">Chọn danh mục</option>
+                            @if (ViewBag.DanhMucs != null)
+                            {
+                                @foreach (var dm in (List<DanhMuc>)ViewBag.DanhMucs)
+                                {
+                                    <option value="@dm.Id">@dm.TenDanhMuc</option>
+                                }
+                            }
+                        </select>
+                        <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm..." aria-label="Search">
+                        <button class="btn btn-orange" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            Thể loại
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Sách Văn Học</a></li>
-                            <li><a class="dropdown-item" href="#">Sách Kinh Tế</a></li>
-                            <li><a class="dropdown-item" href="#">Sách Kỹ Năng</a></li>
-                            <li><a class="dropdown-item" href="#">Sách Thiếu Nhi</a></li>
-                            <li><a class="dropdown-item" href="#">Sách Lịch Sử</a></li>
-                            <li><a class="dropdown-item" href="#">Sách Khoa Học</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Tin tức</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Liên hệ</a>
-                    </li>
-                </ul>
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-cart" data-bs-toggle="modal" data-bs-target="#cartModal">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-count">0</span>
-                    </button>
+        </div>
+    </nav>
+    
+    <!-- Product Category Bar - Orange -->
+    <div class="category-navbar bg-orange">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <span class="category-nav-title text-white">
+                        <i class="fas fa-bars"></i> DANH MỤC SẢN PHẨM
+                    </span>
+                </div>
+                <div class="col-md-9">
+                    <ul class="category-nav-list">
+                        <li><a href="#" class="text-white">Trang chủ</a></li>
+                        <li><a href="#" class="text-white">Giới thiệu</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="text-white dropdown-toggle" data-bs-toggle="dropdown">Thể loại <i class="fas fa-chevron-down"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Sách Văn Học</a></li>
+                                <li><a class="dropdown-item" href="#">Sách Kinh Tế</a></li>
+                                <li><a class="dropdown-item" href="#">Sách Kỹ Năng</a></li>
+                                <li><a class="dropdown-item" href="#">Sách Thiếu Nhi</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#" class="text-white">Tin tức</a></li>
+                        <li><a href="#" class="text-white">Liên hệ</a></li>
+                        <li class="ms-auto"><a href="#" class="text-white">Đăng ký / Đăng nhập</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
 </header>
-
