@@ -12,10 +12,28 @@
                 </div>
                 <div class="col-md-6 text-end">
                     <div class="header-links text-white">
-                        <a href="#" class="text-white me-2"><i class="fas fa-user"></i> Đăng ký / Đăng nhập</a>
-                        <button class="btn btn-sm btn-cart-top text-white" data-bs-toggle="modal" data-bs-target="#cartModal">
+                        @if (string.IsNullOrEmpty(Context.Session.GetString("UserId")))
+                        {
+                            <a asp-controller="TaiKhoan" asp-action="DangKy" class="text-white me-2"><i class="fas fa-user-plus"></i> Đăng ký</a>
+                            <span class="text-white">/</span>
+                            <a asp-controller="TaiKhoan" asp-action="DangNhap" class="text-white ms-2"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
+                        }
+                        else
+                        {
+                            <span class="text-white me-2">
+                                <i class="fas fa-user"></i> 
+                                @Context.Session.GetString("HoTen")
+                                @if (Context.Session.GetString("VaiTro") == "Admin")
+                                {
+                                    <span class="badge bg-danger ms-1">Admin</span>
+                                }
+                            </span>
+                            <span class="text-white">|</span>
+                            <a asp-controller="TaiKhoan" asp-action="DangXuat" class="text-white ms-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                        }
+                        <a asp-controller="GioHang" asp-action="Index" class="btn btn-sm btn-cart-top text-white ms-2">
                             <i class="fas fa-shopping-cart"></i> Giỏ hàng <span class="cart-count">0</span>
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -38,13 +56,7 @@
                     <div class="input-group">
                         <select class="form-select category-select" name="categoryId" style="max-width: 150px;">
                             <option value="">Chọn danh mục</option>
-                            @if (ViewBag.DanhMucs != null)
-                            {
-                                @foreach (var dm in (List<DanhMuc>)ViewBag.DanhMucs)
-                                {
-                                    <option value="@dm.Id">@dm.TenDanhMuc</option>
-                                }
-                            }
+                            @await Component.InvokeAsync("DanhMuc")
                         </select>
                         <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm..." aria-label="Search">
                         <button class="btn btn-orange" type="submit">
@@ -71,20 +83,26 @@
                 </div>
                 <div class="col-md-9">
                     <ul class="category-nav-list">
-                        <li><a href="#" class="text-white">Trang chủ</a></li>
-                        <li><a href="#" class="text-white">Giới thiệu</a></li>
-                        <li class="dropdown">
-                            <a href="#" class="text-white dropdown-toggle" data-bs-toggle="dropdown">Thể loại <i class="fas fa-chevron-down"></i></a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Sách Văn Học</a></li>
-                                <li><a class="dropdown-item" href="#">Sách Kinh Tế</a></li>
-                                <li><a class="dropdown-item" href="#">Sách Kỹ Năng</a></li>
-                                <li><a class="dropdown-item" href="#">Sách Thiếu Nhi</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="#" class="text-white">Tin tức</a></li>
-                        <li><a href="#" class="text-white">Liên hệ</a></li>
-                        <li class="ms-auto"><a href="#" class="text-white">Đăng ký / Đăng nhập</a></li>
+                        <li><a asp-controller="Home" asp-action="Index" class="text-white">Trang chủ</a></li>
+                        <li><a asp-controller="DanhMuc" asp-action="Index" class="text-white">Danh mục</a></li>
+                        <li><a asp-controller="Sach" asp-action="Index" class="text-white">Tất cả sách</a></li>
+                        @if (!string.IsNullOrEmpty(Context.Session.GetString("UserId")))
+                        {
+                            <li><a asp-controller="DonHang" asp-action="Index" class="text-white">Đơn hàng</a></li>
+                            <li><a asp-controller="TaiKhoan" asp-action="ThongTin" class="text-white">Tài khoản</a></li>
+                        }
+                        @if (Context.Session.GetString("VaiTro") == "Admin")
+                        {
+                            <li><a asp-controller="Admin" asp-action="Index" class="text-white"><i class="fas fa-cog"></i> Quản trị</a></li>
+                        }
+                        @if (string.IsNullOrEmpty(Context.Session.GetString("UserId")))
+                        {
+                            <li class="ms-auto"><a asp-controller="TaiKhoan" asp-action="DangKy" class="text-white">Đăng ký</a> / <a asp-controller="TaiKhoan" asp-action="DangNhap" class="text-white">Đăng nhập</a></li>
+                        }
+                        else
+                        {
+                            <li class="ms-auto"><a asp-controller="TaiKhoan" asp-action="DangXuat" class="text-white">Đăng xuất</a></li>
+                        }
                     </ul>
                 </div>
             </div>

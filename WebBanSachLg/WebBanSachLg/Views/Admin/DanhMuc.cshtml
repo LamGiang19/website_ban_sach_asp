@@ -1,0 +1,64 @@
+@model IEnumerable<WebBanSachLg.Database.DanhMuc>
+@{
+    ViewData["Title"] = "Quản lý Danh mục";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-folder"></i> Quản lý Danh mục</h2>
+    <a asp-action="DanhMucCreate" class="btn btn-orange">
+        <i class="fas fa-plus"></i> Thêm danh mục mới
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên danh mục</th>
+                        <th>Mô tả</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td><strong>@item.TenDanhMuc</strong></td>
+                            <td>@(item.MoTa?.Length > 50 ? item.MoTa.Substring(0, 50) + "..." : item.MoTa)</td>
+                            <td>
+                                @if (item.TrangThai == true)
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Không hoạt động</span>
+                                }
+                            </td>
+                            <td>@item.NgayTao?.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <a asp-action="DanhMucEdit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <form asp-action="DanhMucDelete" method="post" style="display: inline;" data-confirm="Bạn có chắc chắn muốn xóa danh mục này?">
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

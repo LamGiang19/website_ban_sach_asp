@@ -1,0 +1,78 @@
+@model WebBanSachLg.Models.TimKiemViewModel
+@{
+    ViewData["Title"] = "Tìm kiếm - Vua Sách Cũ";
+}
+
+<div class="container-fluid mt-4">
+    <div class="mb-3">
+        <h2>Kết quả tìm kiếm</h2>
+        @if (!string.IsNullOrEmpty(Model.Keyword))
+        {
+            <p class="text-muted">Từ khóa: <strong>"@Model.Keyword"</strong></p>
+        }
+        <p class="text-muted">Tìm thấy <strong>@Model.TotalItems</strong> sản phẩm</p>
+    </div>
+
+    @if (Model.Saches != null && Model.Saches.Any())
+    {
+        <div class="row">
+            @foreach (var sach in Model.Saches)
+            {
+                <div class="col-md-3 mb-4">
+                    @await Html.PartialAsync("_SachCard", sach)
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @if (Model.Page > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Search", new { keyword = Model.Keyword, categoryId = Model.DanhMucId, page = Model.Page - 1 })">Trước</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        if (i == Model.Page)
+                        {
+                            <li class="page-item active">
+                                <span class="page-link">@i</span>
+                            </li>
+                        }
+                        else if (i == 1 || i == Model.TotalPages || (i >= Model.Page - 2 && i <= Model.Page + 2))
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Search", new { keyword = Model.Keyword, categoryId = Model.DanhMucId, page = i })">@i</a>
+                            </li>
+                        }
+                        else if (i == Model.Page - 3 || i == Model.Page + 3)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    @if (Model.Page < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Search", new { keyword = Model.Keyword, categoryId = Model.DanhMucId, page = Model.Page + 1 })">Sau</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Không tìm thấy sách nào phù hợp với từ khóa của bạn.
+        </div>
+    }
+</div>
+

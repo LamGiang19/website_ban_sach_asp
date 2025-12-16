@@ -1,0 +1,133 @@
+@model WebBanSachLg.Database.DonHang
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-receipt"></i> Chi tiết đơn hàng #@Model.Id</h2>
+    <a asp-action="DonHang" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-orange text-white">
+                <h5 class="mb-0">Thông tin sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sách</th>
+                                <th>Số lượng</th>
+                                <th>Giá</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var chiTiet in Model.ChiTietDonHangs)
+                            {
+                                <tr>
+                                    <td>@chiTiet.Sach?.TenSach</td>
+                                    <td>@chiTiet.SoLuong</td>
+                                    <td>@chiTiet.Gia.ToString("N0")₫</td>
+                                    <td><strong>@((chiTiet.SoLuong * chiTiet.Gia).ToString("N0"))₫</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Tổng tiền:</th>
+                                <th class="text-orange">@Model.TongTien.ToString("N0")₫</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Thông tin khách hàng</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Họ tên:</strong> @Model.TaiKhoan?.HoTen</p>
+                <p><strong>Email:</strong> @Model.TaiKhoan?.Email</p>
+                <p><strong>SĐT:</strong> @Model.SoDienThoai</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Thông tin giao hàng</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Người nhận:</strong> @Model.HoTenNguoiNhan</p>
+                <p><strong>Địa chỉ:</strong> @Model.DiaChiGiaoHang</p>
+                <p><strong>SĐT:</strong> @Model.SoDienThoai</p>
+                @if (!string.IsNullOrEmpty(Model.GhiChu))
+                {
+                    <p><strong>Ghi chú:</strong> @Model.GhiChu</p>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Trạng thái đơn hàng</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Trạng thái hiện tại:</strong></p>
+                @switch (Model.TrangThai)
+                {
+                    case "Chờ xử lý":
+                        <span class="badge bg-warning">@Model.TrangThai</span>
+                        break;
+                    case "Đang giao":
+                        <span class="badge bg-info">@Model.TrangThai</span>
+                        break;
+                    case "Đã giao":
+                        <span class="badge bg-success">@Model.TrangThai</span>
+                        break;
+                    case "Đã hủy":
+                        <span class="badge bg-danger">@Model.TrangThai</span>
+                        break;
+                    default:
+                        <span class="badge bg-secondary">@Model.TrangThai</span>
+                        break;
+                }
+                <hr>
+                <p><strong>Cập nhật trạng thái:</strong></p>
+                <div class="d-grid gap-2">
+                    <form asp-action="DonHangUpdateStatus" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="trangThai" value="Chờ xử lý" />
+                        <button type="submit" class="btn btn-warning btn-sm w-100">Chờ xử lý</button>
+                    </form>
+                    <form asp-action="DonHangUpdateStatus" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="trangThai" value="Đang giao" />
+                        <button type="submit" class="btn btn-info btn-sm w-100">Đang giao</button>
+                    </form>
+                    <form asp-action="DonHangUpdateStatus" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="trangThai" value="Đã giao" />
+                        <button type="submit" class="btn btn-success btn-sm w-100">Đã giao</button>
+                    </form>
+                    <form asp-action="DonHangUpdateStatus" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="trangThai" value="Đã hủy" />
+                        <button type="submit" class="btn btn-danger btn-sm w-100">Đã hủy</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

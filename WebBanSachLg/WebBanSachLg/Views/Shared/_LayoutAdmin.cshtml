@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 admin-sidebar">
+                <div class="text-center p-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </h5>
+                </div>
+                <nav class="nav flex-column">
+                    <a class="nav-link" asp-controller="Admin" asp-action="Index">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a class="nav-link" asp-controller="Admin" asp-action="Sach">
+                        <i class="fas fa-book"></i> Quản lý Sách
+                    </a>
+                    <a class="nav-link" asp-controller="Admin" asp-action="DanhMuc">
+                        <i class="fas fa-folder"></i> Quản lý Danh mục
+                    </a>
+                    <a class="nav-link" asp-controller="Admin" asp-action="TacGia">
+                        <i class="fas fa-user-edit"></i> Quản lý Tác giả
+                    </a>
+                    <a class="nav-link" asp-controller="Admin" asp-action="NhaXuatBan">
+                        <i class="fas fa-building"></i> Quản lý NXB
+                    </a>
+                    <a class="nav-link" asp-controller="Admin" asp-action="DonHang">
+                        <i class="fas fa-shopping-cart"></i> Quản lý Đơn hàng
+                    </a>
+                    <a class="nav-link" asp-controller="Admin" asp-action="TaiKhoan">
+                        <i class="fas fa-users"></i> Quản lý Tài khoản
+                    </a>
+                    <hr>
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home"></i> Về trang chủ
+                    </a>
+                    <a class="nav-link" asp-controller="TaiKhoan" asp-action="DangXuat">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <!-- Header -->
+                <div class="admin-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">@ViewData["Title"]</h4>
+                        <div>
+                            <span class="text-muted">
+                                <i class="fas fa-user"></i> 
+                                @Context.Session.GetString("HoTen")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="admin-content">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function showToast(message, type = 'success') {
+            if (!message || message.trim() === '') {
+                return;
+            }
+
+            const container = document.querySelector('.toast-container');
+            if (!container) {
+                console.error('Toast container not found');
+                setTimeout(function() {
+                    showToast(message, type);
+                }, 100);
+                return;
+            }
+
+            const escapeHtml = function(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            };
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification ' + type;
+            
+            const icons = {
+                success: '<i class="fas fa-check-circle toast-icon"></i>',
+                error: '<i class="fas fa-exclamation-circle toast-icon"></i>',
+                info: '<i class="fas fa-info-circle toast-icon"></i>',
+                warning: '<i class="fas fa-exclamation-triangle toast-icon"></i>'
+            };
+            
+            const titles = {
+                success: 'Thành công',
+                error: 'Lỗi',
+                info: 'Thông tin',
+                warning: 'Cảnh báo'
+            };
+
+            const icon = icons[type] || icons.success;
+            const title = titles[type] || titles.success;
+            const escapedMessage = escapeHtml(message);
+
+            toast.innerHTML = icon +
+                '<div class="toast-content">' +
+                    '<div class="toast-title">' + title + '</div>' +
+                    '<div class="toast-message">' + escapedMessage + '</div>' +
+                '</div>' +
+                '<button class="toast-close" onclick="this.parentElement.remove()">' +
+                    '<i class="fas fa-times"></i>' +
+                '</button>';
+
+            container.appendChild(toast);
+
+            setTimeout(function() {
+                toast.classList.add('hiding');
+                setTimeout(function() {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        window.showToast = showToast;
+
+        $(document).ready(function() {
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                var message = '@Html.Raw(TempData["SuccessMessage"])';
+                if (message && message.trim() !== '') {
+                    showToast(message, 'success');
+                }
+                </text>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                var errorMessage = '@Html.Raw(TempData["ErrorMessage"])';
+                if (errorMessage && errorMessage.trim() !== '') {
+                    showToast(errorMessage, 'error');
+                }
+                </text>
+            }
+        });
+
+        function showConfirmModal(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade show';
+            modal.style.display = 'block';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            modal.setAttribute('tabindex', '-1');
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="border-radius: 8px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <div class="modal-header" style="border-bottom: 1px solid #e9ecef; padding: 16px 20px;">
+                            <h5 class="modal-title" style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-exclamation-triangle text-warning"></i> Xác nhận
+                            </h5>
+                            <button type="button" class="btn-close" onclick="this.closest('.modal').remove()"></button>
+                        </div>
+                        <div class="modal-body" style="padding: 20px;">
+                            <p style="margin: 0; font-size: 15px;">${message}</p>
+                        </div>
+                        <div class="modal-footer" style="border-top: 1px solid #e9ecef; padding: 16px 20px;">
+                            <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                                <i class="fas fa-times"></i> Hủy
+                            </button>
+                            <button type="button" class="btn btn-danger confirm-btn">
+                                <i class="fas fa-check"></i> Xác nhận
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            const confirmBtn = modal.querySelector('.confirm-btn');
+            confirmBtn.onclick = function() {
+                if (onConfirm) onConfirm();
+                modal.remove();
+            };
+            
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+        }
+
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            if (form.hasAttribute('data-confirm')) {
+                e.preventDefault();
+                e.stopPropagation();
+                const message = form.getAttribute('data-confirm');
+                const originalForm = form.cloneNode(true);
+                originalForm.removeAttribute('data-confirm');
+                
+                showConfirmModal(message, function() {
+                    const newForm = document.createElement('form');
+                    newForm.method = originalForm.method;
+                    newForm.action = originalForm.action;
+                    newForm.style.display = 'none';
+                    
+                    originalForm.querySelectorAll('input, select, textarea').forEach(function(input) {
+                        const newInput = input.cloneNode(true);
+                        newForm.appendChild(newInput);
+                    });
+                    
+                    document.body.appendChild(newForm);
+                    newForm.submit();
+                });
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

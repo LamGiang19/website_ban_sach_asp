@@ -19,13 +19,11 @@ namespace WebBanSachLg.Controllers
 
         public IActionResult Index()
         {
-            // Lấy danh mục cho sidebar
             var danhMucs = _context.DanhMucs
                 .Where(d => d.TrangThai == true)
                 .ToList();
             ViewBag.DanhMucs = danhMucs;
 
-            // Lấy sách bán chạy (có thể lấy theo số lượng đơn hàng hoặc random)
             var sachBanChay = _context.Saches
                 .Where(s => s.TrangThai == true)
                 .Include(s => s.DanhMuc)
@@ -35,7 +33,6 @@ namespace WebBanSachLg.Controllers
                 .Take(8)
                 .ToList();
 
-            // Lấy sách theo danh mục
             var sachTieuThuyet = _context.Saches
                 .Where(s => s.TrangThai == true && s.DanhMucId == 1)
                 .Include(s => s.DanhMuc)

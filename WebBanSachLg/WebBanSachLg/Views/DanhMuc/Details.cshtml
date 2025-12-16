@@ -1,0 +1,81 @@
+@model List<WebBanSachLg.Database.Sach>
+@{
+    ViewData["Title"] = (ViewBag.DanhMuc as WebBanSachLg.Database.DanhMuc)?.TenDanhMuc + " - Vua Sách Cũ";
+    var danhMuc = ViewBag.DanhMuc as WebBanSachLg.Database.DanhMuc;
+}
+
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Danh mục</a></li>
+            <li class="breadcrumb-item active">@danhMuc?.TenDanhMuc</li>
+        </ol>
+    </nav>
+
+    <h2>@danhMuc?.TenDanhMuc</h2>
+    <p class="text-muted">Tìm thấy @ViewBag.TotalItems sản phẩm</p>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var sach in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    @await Html.PartialAsync("_SachCard", sach)
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @if (ViewBag.Page > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Details", new { id = danhMuc?.Id, page = ViewBag.Page - 1 })">Trước</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        if (i == ViewBag.Page)
+                        {
+                            <li class="page-item active">
+                                <span class="page-link">@i</span>
+                            </li>
+                        }
+                        else if (i == 1 || i == ViewBag.TotalPages || (i >= ViewBag.Page - 2 && i <= ViewBag.Page + 2))
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Details", new { id = danhMuc?.Id, page = i })">@i</a>
+                            </li>
+                        }
+                        else if (i == ViewBag.Page - 3 || i == ViewBag.Page + 3)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    @if (ViewBag.Page < ViewBag.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Details", new { id = danhMuc?.Id, page = ViewBag.Page + 1 })">Sau</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Chưa có sách nào trong danh mục này.
+        </div>
+    }
+</div>
+

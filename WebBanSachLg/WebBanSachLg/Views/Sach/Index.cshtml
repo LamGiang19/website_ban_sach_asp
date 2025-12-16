@@ -1,0 +1,152 @@
+@model List<WebBanSachLg.Database.Sach>
+@{
+    ViewData["Title"] = "Danh sách sách - Vua Sách Cũ";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar Filter -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0"><i class="fas fa-filter"></i> Bộ lọc</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="@Url.Action("Index", "Sach")">
+                        <!-- Danh mục -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Danh mục</label>
+                            <select name="danhMucId" class="form-select">
+                                <option value="">Tất cả</option>
+                                @if (ViewBag.DanhMucs != null)
+                                {
+                                    @foreach (var dm in (List<WebBanSachLg.Database.DanhMuc>)ViewBag.DanhMucs)
+                                    {
+                                        <option value="@dm.Id" selected="@(ViewBag.DanhMucId != null && ViewBag.DanhMucId == dm.Id)">@dm.TenDanhMuc</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Tác giả -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tác giả</label>
+                            <select name="tacGiaId" class="form-select">
+                                <option value="">Tất cả</option>
+                                @if (ViewBag.TacGias != null)
+                                {
+                                    @foreach (var tg in (List<WebBanSachLg.Database.TacGium>)ViewBag.TacGias)
+                                    {
+                                        <option value="@tg.Id" selected="@(ViewBag.TacGiaId != null && ViewBag.TacGiaId == tg.Id)">@tg.TenTacGia</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Giá -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Giá</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" name="giaMin" class="form-control" placeholder="Từ" value="@ViewBag.GiaMin">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="giaMax" class="form-control" placeholder="Đến" value="@ViewBag.GiaMax">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sắp xếp -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Sắp xếp</label>
+                            <select name="sapXep" class="form-select">
+                                <option value="moi-nhat" selected="@(ViewBag.SapXep == "moi-nhat" || ViewBag.SapXep == null)">Mới nhất</option>
+                                <option value="gia-tang" selected="@(ViewBag.SapXep == "gia-tang")">Giá tăng dần</option>
+                                <option value="gia-giam" selected="@(ViewBag.SapXep == "gia-giam")">Giá giảm dần</option>
+                                <option value="ten" selected="@(ViewBag.SapXep == "ten")">Tên A-Z</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-orange w-100">
+                            <i class="fas fa-search"></i> Lọc
+                        </button>
+                        <a href="@Url.Action("Index", "Sach")" class="btn btn-secondary w-100 mt-2">
+                            <i class="fas fa-redo"></i> Xóa bộ lọc
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2>Danh sách sách</h2>
+                <span class="text-muted">Tìm thấy @ViewBag.TotalItems sản phẩm</span>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="row">
+                    @foreach (var sach in Model)
+                    {
+                        <div class="col-md-3 mb-4">
+                            @await Html.PartialAsync("_SachCard", sach)
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (ViewBag.TotalPages > 1)
+                {
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            @if (ViewBag.Page > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { danhMucId = ViewBag.DanhMucId, tacGiaId = ViewBag.TacGiaId, giaMin = ViewBag.GiaMin, giaMax = ViewBag.GiaMax, sapXep = ViewBag.SapXep, page = ViewBag.Page - 1 })">Trước</a>
+                                </li>
+                            }
+
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                if (i == ViewBag.Page)
+                                {
+                                    <li class="page-item active">
+                                        <span class="page-link">@i</span>
+                                    </li>
+                                }
+                                else if (i == 1 || i == ViewBag.TotalPages || (i >= ViewBag.Page - 2 && i <= ViewBag.Page + 2))
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" href="@Url.Action("Index", new { danhMucId = ViewBag.DanhMucId, tacGiaId = ViewBag.TacGiaId, giaMin = ViewBag.GiaMin, giaMax = ViewBag.GiaMax, sapXep = ViewBag.SapXep, page = i })">@i</a>
+                                    </li>
+                                }
+                                else if (i == ViewBag.Page - 3 || i == ViewBag.Page + 3)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                }
+                            }
+
+                            @if (ViewBag.Page < ViewBag.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("Index", new { danhMucId = ViewBag.DanhMucId, tacGiaId = ViewBag.TacGiaId, giaMin = ViewBag.GiaMin, giaMax = ViewBag.GiaMax, sapXep = ViewBag.SapXep, page = ViewBag.Page + 1 })">Sau</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Không tìm thấy sách nào.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

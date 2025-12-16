@@ -1,0 +1,38 @@
+@model List<WebBanSachLg.Database.DanhMuc>
+@{
+    ViewData["Title"] = "Danh mục sách - Vua Sách Cũ";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-list"></i> Danh mục sách</h2>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var danhMuc in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@danhMuc.TenDanhMuc</h5>
+                            @if (!string.IsNullOrEmpty(danhMuc.MoTa))
+                            {
+                                <p class="card-text text-muted">@danhMuc.MoTa</p>
+                            }
+                            <a asp-action="Details" asp-route-id="@danhMuc.Id" class="btn btn-orange">
+                                <i class="fas fa-arrow-right"></i> Xem sách
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Chưa có danh mục nào.
+        </div>
+    }
+</div>
+

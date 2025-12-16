@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Trang chủ - Vua Sách Cũ";
 }
 
@@ -34,7 +34,7 @@
                 <h2 class="section-title mb-0">
                     <i class="fas fa-fire"></i> SÁCH BÁN CHẠY
                 </h2>
-                <a href="#" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                <a asp-controller="Sach" asp-action="Index" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -76,7 +76,16 @@
                         @foreach (var sach in ((List<WebBanSachLg.Database.Sach>)ViewBag.SachBanChay).Take(4))
                         {
                             <div class="sidebar-book-item">
-                                <img src="@(sach.HinhAnh ?? "/images/sach/default.jpg")" alt="@sach.TenSach" onerror="this.src='/images/sach/default.jpg'">
+                                @if (string.IsNullOrEmpty(sach.HinhAnh))
+                                {
+                                    <div class="sidebar-placeholder">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <img src="@FileUploadHelper.GetSachImagePath(sach.HinhAnh)" alt="@sach.TenSach" onerror="this.onerror=null; this.outerHTML='<div class=\'sidebar-placeholder\'><i class=\'fas fa-book\'></i></div>';">
+                                }
                                 <div class="sidebar-book-info">
                                     <h6>@sach.TenSach</h6>
                                     <div class="price">
@@ -114,7 +123,7 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="section-title mb-0">SÁCH TIỂU THUYẾT</h2>
-                <a href="#" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                <a asp-controller="Sach" asp-action="Index" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -141,7 +150,7 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="section-title mb-0">SÁCH KHOA HỌC</h2>
-                <a href="#" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                <a asp-controller="Sach" asp-action="Index" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -168,7 +177,7 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="section-title mb-0">SÁCH THIẾU NHI</h2>
-                <a href="#" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                <a asp-controller="Sach" asp-action="Index" class="text-white text-decoration-none">Xem tất cả <i class="fas fa-arrow-right"></i></a>
             </div>
         </div>
     </div>
@@ -191,12 +200,9 @@
 
 @section Scripts {
     <script>
-        // Horizontal scroll cho product sections - chỉ chạy một lần khi DOM ready
         $(document).ready(function() {
-            // Kiểm tra và set overflow cho product scroll
             $('.product-scroll').each(function() {
                 const $this = $(this);
-                // Chỉ set nếu chưa được set
                 if (!$this.data('scroll-initialized')) {
                     if (this.scrollWidth > $this.width()) {
                         $this.css('overflow-x', 'auto');

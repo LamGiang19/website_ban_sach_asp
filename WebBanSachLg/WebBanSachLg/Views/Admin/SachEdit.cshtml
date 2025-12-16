@@ -1,0 +1,112 @@
+@model WebBanSachLg.Database.Sach
+@{
+    ViewData["Title"] = "Sửa sách";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="card">
+    <div class="card-header bg-orange text-white">
+        <h4><i class="fas fa-edit"></i> Sửa sách</h4>
+    </div>
+    <div class="card-body">
+        <form asp-action="SachEdit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label asp-for="TenSach" class="form-label">Tên sách <span class="text-danger">*</span></label>
+                    <input asp-for="TenSach" class="form-control" required />
+                    <span asp-validation-for="TenSach" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Gia" class="form-label">Giá <span class="text-danger">*</span></label>
+                    <input asp-for="Gia" type="number" step="1000" class="form-control" required />
+                    <span asp-validation-for="Gia" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MoTa" class="form-label">Mô tả</label>
+                <textarea asp-for="MoTa" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="MoTa" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="DanhMucId" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                    <select asp-for="DanhMucId" class="form-select" asp-items="ViewBag.DanhMucs" required>
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                    <span asp-validation-for="DanhMucId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label asp-for="TacGiaId" class="form-label">Tác giả <span class="text-danger">*</span></label>
+                    <select asp-for="TacGiaId" class="form-select" asp-items="ViewBag.TacGias" required>
+                        <option value="">-- Chọn tác giả --</option>
+                    </select>
+                    <span asp-validation-for="TacGiaId" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label asp-for="NhaXuatBanId" class="form-label">Nhà xuất bản <span class="text-danger">*</span></label>
+                    <select asp-for="NhaXuatBanId" class="form-select" asp-items="ViewBag.NhaXuatBans" required>
+                        <option value="">-- Chọn NXB --</option>
+                    </select>
+                    <span asp-validation-for="NhaXuatBanId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="SoLuong" class="form-label">Số lượng <span class="text-danger">*</span></label>
+                    <input asp-for="SoLuong" type="number" min="0" class="form-control" required />
+                    <span asp-validation-for="SoLuong" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Hình ảnh</label>
+                    @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                    {
+                        <div class="mb-2">
+                            <img src="@FileUploadHelper.GetSachImagePath(Model.HinhAnh)" alt="@Model.TenSach" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 5px;" />
+                            <p class="text-muted small mt-1">Hình ảnh hiện tại: @Model.HinhAnh</p>
+                        </div>
+                    }
+                    <input type="file" name="hinhAnhFile" class="form-control" accept="image/*" />
+                    <small class="form-text text-muted">Chọn file mới để thay thế (JPG, PNG, GIF, WEBP - tối đa 5MB)</small>
+                    <div class="mt-2">
+                        <label class="form-label">Hoặc nhập tên file hoặc URL hình ảnh:</label>
+                        <input asp-for="HinhAnh" type="text" class="form-control" placeholder="ten-file.jpg hoặc /images/sach/ten-file.jpg" />
+                        <small class="form-text text-muted">Nếu nhập URL, hệ thống sẽ tự động lấy tên file</small>
+                    </div>
+                    <span asp-validation-for="HinhAnh" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    <input name="TrangThai" class="form-check-input" type="checkbox" value="true" @(Model.TrangThai == true ? "checked" : "") />
+                    <input type="hidden" name="TrangThai" value="false" />
+                    <label class="form-check-label">Kích hoạt</label>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-orange">
+                    <i class="fas fa-save"></i> Cập nhật
+                </button>
+                <a asp-action="Sach" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

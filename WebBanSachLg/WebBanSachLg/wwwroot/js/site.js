@@ -1,198 +1,219 @@
-﻿// Giỏ hàng
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
-// Flag để tránh chạy nhiều lần
 let isInitialized = false;
-let lastCartCount = -1;
 
-// Cập nhật số lượng giỏ hàng - tối ưu để tránh re-render
 function updateCartCount() {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    // Chỉ update nếu số lượng thay đổi
-    if (totalItems !== lastCartCount) {
-        $('.cart-count').text(totalItems);
-        lastCartCount = totalItems;
-    }
+    $.ajax({
+        url: '/GioHang/GetCartCount',
+        type: 'GET',
+        success: function(response) {
+            if (response && response.count !== undefined) {
+                $('.cart-count').text(response.count);
+            }
+        },
+        error: function() {
+            // User not logged in, show 0
+            $('.cart-count').text('0');
+        }
+    });
 }
 
-// Thêm sản phẩm vào giỏ hàng
-function addToCart(sachId, tenSach, gia, hinhAnh) {
-    const existingItem = cart.find(item => item.id === sachId);
-    
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            id: sachId,
-            name: tenSach,
-            price: gia,
-            image: hinhAnh || '/images/sach/default.jpg',
-            quantity: 1
-        });
-    }
-    
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-    updateCartModal();
-    showNotification('Đã thêm sản phẩm vào giỏ hàng!');
-}
-
-// Xóa sản phẩm khỏi giỏ hàng
-function removeFromCart(sachId) {
-    cart = cart.filter(item => item.id !== sachId);
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-    updateCartModal();
-}
-
-// Cập nhật số lượng sản phẩm
-function updateCartQuantity(sachId, quantity) {
-    const item = cart.find(item => item.id === sachId);
-    if (item) {
-        item.quantity = Math.max(1, parseInt(quantity));
-        localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartCount();
-        updateCartModal();
-    }
-}
-
-// Cập nhật modal giỏ hàng
 function updateCartModal() {
-    const cartItems = $('#cartItems');
-    const cartTotal = $('#cartTotal');
-    
-    if (!cartItems.length || !cartTotal.length) return;
-    
-    if (cart.length === 0) {
-        cartItems.html('<p class="text-center text-muted">Giỏ hàng của bạn đang trống</p>');
-        cartTotal.text('0₫');
-        return;
+    $.ajax({
+        url: '/GioHang/GetCartItems',
+        type: 'GET',
+        success: function(response) {
+            const cartItems = $('#cartItems');
+            const cartTotal = $('#cartTotal');
+            
+            if (!cartItems.length || !cartTotal.length) return;
+            
+            if (!response.items || response.items.length === 0) {
+                cartItems.html('<p class="text-center text-muted">Giỏ hàng của bạn đang trống</p>');
+                cartTotal.text('0₫');
+                return;
+            }
+            
+            let html = '<table class="table table-sm">';
+            let total = response.tongTien || 0;
+            
+            response.items.forEach(item => {
+                html += `
+                    <tr>
+                        <td>
+                            <img src="${item.hinhAnh}" alt="${item.tenSach}" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.src='/images/sach/default.jpg'">
+                        </td>
+                        <td>
+                            <strong>${item.tenSach}</strong><br>
+                            <small class="text-muted">${item.gia.toLocaleString('vi-VN')}₫</small>
+                        </td>
+                        <td>
+                            <small>SL: ${item.soLuong}</small>
+                        </td>
+                        <td>
+                            <strong>${item.thanhTien.toLocaleString('vi-VN')}₫</strong>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</table>';
+            cartItems.html(html);
+            cartTotal.text(total.toLocaleString('vi-VN') + '₫');
+        },
+        error: function() {
+            const cartItems = $('#cartItems');
+            const cartTotal = $('#cartTotal');
+            if (cartItems.length) {
+                cartItems.html('<p class="text-center text-muted">Vui lòng đăng nhập để xem giỏ hàng</p>');
+            }
+            if (cartTotal.length) {
+                cartTotal.text('0₫');
+            }
+        }
+    });
+}
+
+// Toast Notification Functions
+function showToast(message, type = 'success') {
+    const container = $('#toastContainer');
+    if (!container.length) {
+        $('body').append('<div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>');
     }
     
-    let html = '<table class="table table-sm">';
-    let total = 0;
+    const template = document.getElementById('toastTemplate');
+    if (!template) return;
     
-    cart.forEach(item => {
-        const itemTotal = item.price * item.quantity;
-        total += itemTotal;
-        
-        html += `
-            <tr>
-                <td>
-                    <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover;">
-                </td>
-                <td>
-                    <strong>${item.name}</strong><br>
-                    <small class="text-muted">${item.price.toLocaleString('vi-VN')}₫</small>
-                </td>
-                <td>
-                    <input type="number" class="form-control form-control-sm" 
-                           value="${item.quantity}" min="1" 
-                           onchange="updateCartQuantity(${item.id}, this.value)" 
-                           style="width: 60px;">
-                </td>
-                <td>
-                    <strong>${itemTotal.toLocaleString('vi-VN')}₫</strong>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-danger" onclick="removeFromCart(${item.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
+    const toastElement = template.content.cloneNode(true);
+    const toast = $(toastElement.querySelector('.toast'));
+    
+    // Set type and icon
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    toast.addClass(type);
+    toast.find('.toast-icon').addClass(icons[type] || icons.success);
+    toast.find('.toast-message').text(message);
+    
+    $('#toastContainer').append(toast);
+    const bsToast = new bootstrap.Toast(toast[0], {
+        autohide: true,
+        delay: type === 'error' ? 5000 : 3000
+    });
+    bsToast.show();
+    
+    toast.on('hidden.bs.toast', function() {
+        $(this).remove();
+    });
+}
+
+function showSuccess(message) {
+    showToast(message, 'success');
+}
+
+function showError(message) {
+    showToast(message, 'error');
+}
+
+function showWarning(message) {
+    showToast(message, 'warning');
+}
+
+function showInfo(message) {
+    showToast(message, 'info');
+}
+
+// Confirmation Modal Function
+function showConfirm(message, onConfirm, onCancel = null) {
+    const modal = $('#confirmModal');
+    const confirmBtn = $('#confirmBtn');
+    const confirmMessage = $('#confirmMessage');
+    
+    confirmMessage.text(message);
+    
+    // Remove previous handlers
+    confirmBtn.off('click');
+    
+    // Set new handler
+    confirmBtn.on('click', function() {
+        if (onConfirm) {
+            onConfirm();
+        }
+        bootstrap.Modal.getInstance(modal[0]).hide();
     });
     
-    html += '</table>';
-    cartItems.html(html);
-    cartTotal.text(total.toLocaleString('vi-VN') + '₫');
+    // Handle cancel
+    modal.off('hidden.bs.modal');
+    modal.on('hidden.bs.modal', function() {
+        if (onCancel) {
+            onCancel();
+        }
+    });
+    
+    const bsModal = new bootstrap.Modal(modal[0]);
+    bsModal.show();
 }
 
-// Hiển thị thông báo
+// Legacy function for backward compatibility
 function showNotification(message) {
-    // Xóa notification cũ nếu có
-    $('.toast-notification').remove();
-    
-    // Tạo toast notification
-    const toast = $(`
-        <div class="toast-notification">
-            <div class="toast-content">
-                <i class="fas fa-check-circle"></i>
-                <span>${message}</span>
-            </div>
-        </div>
-    `);
-    
-    $('body').append(toast);
-    toast.fadeIn(300);
-    
-    setTimeout(() => {
-        toast.fadeOut(300, function() {
-            $(this).remove();
-        });
-    }, 3000);
+    showSuccess(message);
 }
 
-// CSS cho toast notification - chỉ append một lần
-if (typeof document !== 'undefined' && !document.getElementById('toast-notification-style')) {
-    const toastStyle = document.createElement('style');
-    toastStyle.id = 'toast-notification-style';
-    toastStyle.textContent = `
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #28a745;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 9999;
-            display: none;
-        }
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .toast-content i {
-            font-size: 20px;
-        }
-    `;
-    document.head.appendChild(toastStyle);
-}
-
-// Xử lý sự kiện khi DOM ready - chỉ chạy một lần
 $(document).ready(function() {
-    // Chỉ khởi tạo một lần
     if (isInitialized) return;
     isInitialized = true;
     
-    // Cập nhật số lượng giỏ hàng khi trang load
     updateCartCount();
     
-    // Xử lý click nút thêm vào giỏ hàng - dùng event delegation
     $(document).on('click', '.add-to-cart', function(e) {
         e.preventDefault();
         e.stopPropagation();
         
         const $btn = $(this);
         const sachId = $btn.data('id');
-        const tenSach = $btn.data('name') || $btn.closest('.product-card').find('.product-title a').text().trim();
-        const gia = parseFloat($btn.data('price'));
-        const hinhAnh = $btn.data('image') || $btn.closest('.product-card').find('.product-image img').attr('src');
+        const soLuong = 1;
         
-        if (sachId && gia) {
-            addToCart(sachId, tenSach, gia, hinhAnh);
-        }
+        if (!sachId) return;
+        
+        $btn.prop('disabled', true);
+        
+        $.ajax({
+            url: '/GioHang/AddToCart',
+            type: 'POST',
+            data: { sachId: sachId, soLuong: soLuong },
+            success: function(response) {
+                if (response.success) {
+                    showSuccess(response.message || 'Đã thêm vào giỏ hàng');
+                    updateCartCount();
+                    updateCartModal();
+                } else {
+                    showError(response.message || 'Có lỗi xảy ra');
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 401 || xhr.responseJSON?.message?.includes('đăng nhập')) {
+                    showConfirm(
+                        'Vui lòng đăng nhập để thêm sách vào giỏ hàng. Bạn có muốn chuyển đến trang đăng nhập?',
+                        function() {
+                            window.location.href = '/TaiKhoan/DangNhap';
+                        }
+                    );
+                } else {
+                    showError('Có lỗi xảy ra. Vui lòng thử lại.');
+                }
+            },
+            complete: function() {
+                $btn.prop('disabled', false);
+            }
+        });
     });
     
-    // Cập nhật modal khi mở
     $('#cartModal').on('show.bs.modal', function() {
         updateCartModal();
     });
     
-    // Xử lý click category
     $('.category-link').on('click', function(e) {
         e.preventDefault();
         $('.category-link').removeClass('active');

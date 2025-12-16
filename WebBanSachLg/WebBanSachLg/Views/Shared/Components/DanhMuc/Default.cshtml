@@ -1,0 +1,10 @@
+@model List<WebBanSachLg.Database.DanhMuc>
+
+@if (Model != null && Model.Any())
+{
+    @foreach (var dm in Model)
+    {
+        <option value="@dm.Id">@dm.TenDanhMuc</option>
+    }
+}
+
