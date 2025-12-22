@@ -93,17 +93,14 @@ namespace WebBanSachLg.Controllers
             var check = CheckAdmin();
             if (check != null) return check;
 
-            if (ModelState.IsValid)
-            {
-                danhMuc.NgayTao = DateTime.Now;
-                var trangThaiValue = Request.Form["TrangThai"].ToString();
-                danhMuc.TrangThai = trangThaiValue == "true";
-                _context.DanhMucs.Add(danhMuc);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Thêm danh mục thành công!";
-                return RedirectToAction("DanhMuc");
-            }
-            return View(danhMuc);
+           
+            danhMuc.NgayTao = DateTime.Now;
+            var trangThaiValue = Request.Form["TrangThai"].ToString();
+            danhMuc.TrangThai = trangThaiValue.Contains("true");
+            _context.DanhMucs.Add(danhMuc);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Thêm danh mục thành công!";
+            return RedirectToAction("DanhMuc");
         }
 
         [HttpGet]
@@ -128,34 +125,29 @@ namespace WebBanSachLg.Controllers
             if (check != null) return check;
 
             if (id != danhMuc.Id) return NotFound();
-
-            if (ModelState.IsValid)
+            
+            try
             {
-                try
-                {
-                    var existingDanhMuc = await _context.DanhMucs.FindAsync(id);
-                    if (existingDanhMuc == null) return NotFound();
+                var existingDanhMuc = await _context.DanhMucs.FindAsync(id);
+                if (existingDanhMuc == null) return NotFound();
 
-                    existingDanhMuc.TenDanhMuc = danhMuc.TenDanhMuc;
-                    existingDanhMuc.MoTa = danhMuc.MoTa;
+                existingDanhMuc.TenDanhMuc = danhMuc.TenDanhMuc;
+                existingDanhMuc.MoTa = danhMuc.MoTa;
                     
-                    var trangThaiValue = Request.Form["TrangThai"].ToString();
-                    existingDanhMuc.TrangThai = trangThaiValue == "true";
+                var trangThaiValue = Request.Form["TrangThai"].ToString();
+                existingDanhMuc.TrangThai = trangThaiValue.Contains("true");
                     
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Cập nhật danh mục thành công!";
-                    return RedirectToAction("DanhMuc");
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.DanhMucs.Any(e => e.Id == id))
-                        return NotFound();
-                    throw;
-                }
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật danh mục thành công!";
+                return RedirectToAction("DanhMuc");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.DanhMucs.Any(e => e.Id == id))
+                    return NotFound();
+                throw;
             }
             
-            ViewBag.DanhMucs = new SelectList(_context.DanhMucs.Where(d => d.TrangThai == true), "Id", "TenDanhMuc", danhMuc.Id);
-            return View(danhMuc);
         }
 
         [HttpPost]
@@ -207,17 +199,15 @@ namespace WebBanSachLg.Controllers
             var check = CheckAdmin();
             if (check != null) return check;
 
-            if (ModelState.IsValid)
-            {
+
                 tacGia.NgayTao = DateTime.Now;
                 var trangThaiValue = Request.Form["TrangThai"].ToString();
-                tacGia.TrangThai = trangThaiValue == "true";
+                tacGia.TrangThai = trangThaiValue.Contains("true");
                 _context.TacGia.Add(tacGia);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Thêm tác giả thành công!";
                 return RedirectToAction("TacGia");
-            }
-            return View(tacGia);
+
         }
 
         [HttpGet]
@@ -243,8 +233,7 @@ namespace WebBanSachLg.Controllers
 
             if (id != tacGia.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
+
                 try
                 {
                     var existingTacGia = await _context.TacGia.FindAsync(id);
@@ -254,7 +243,7 @@ namespace WebBanSachLg.Controllers
                     existingTacGia.GioiThieu = tacGia.GioiThieu;
                     
                     var trangThaiValue = Request.Form["TrangThai"].ToString();
-                    existingTacGia.TrangThai = trangThaiValue == "true";
+                    existingTacGia.TrangThai = trangThaiValue.Contains("true");
                     
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Cập nhật tác giả thành công!";
@@ -266,8 +255,7 @@ namespace WebBanSachLg.Controllers
                         return NotFound();
                     throw;
                 }
-            }
-            return View(tacGia);
+
         }
 
         [HttpPost]
@@ -319,17 +307,15 @@ namespace WebBanSachLg.Controllers
             var check = CheckAdmin();
             if (check != null) return check;
 
-            if (ModelState.IsValid)
-            {
+
                 nhaXuatBan.NgayTao = DateTime.Now;
                 var trangThaiValue = Request.Form["TrangThai"].ToString();
-                nhaXuatBan.TrangThai = trangThaiValue == "true";
+                nhaXuatBan.TrangThai = trangThaiValue.Contains("true");
                 _context.NhaXuatBans.Add(nhaXuatBan);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Thêm nhà xuất bản thành công!";
                 return RedirectToAction("NhaXuatBan");
-            }
-            return View(nhaXuatBan);
+
         }
 
         [HttpGet]
@@ -355,8 +341,7 @@ namespace WebBanSachLg.Controllers
 
             if (id != nhaXuatBan.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
+
                 try
                 {
                     var existingNhaXuatBan = await _context.NhaXuatBans.FindAsync(id);
@@ -368,7 +353,7 @@ namespace WebBanSachLg.Controllers
                     existingNhaXuatBan.Email = nhaXuatBan.Email;
                     
                     var trangThaiValue = Request.Form["TrangThai"].ToString();
-                    existingNhaXuatBan.TrangThai = trangThaiValue == "true";
+                    existingNhaXuatBan.TrangThai = trangThaiValue.Contains("true");
                     
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Cập nhật nhà xuất bản thành công!";
@@ -380,8 +365,7 @@ namespace WebBanSachLg.Controllers
                         return NotFound();
                     throw;
                 }
-            }
-            return View(nhaXuatBan);
+
         }
 
         [HttpPost]
@@ -441,8 +425,7 @@ namespace WebBanSachLg.Controllers
             var check = CheckAdmin();
             if (check != null) return check;
 
-            if (ModelState.IsValid)
-            {
+
                 try
                 {
                     if (hinhAnhFile != null && hinhAnhFile.Length > 0)
@@ -466,7 +449,7 @@ namespace WebBanSachLg.Controllers
 
                     sach.NgayTao = DateTime.Now;
                     var trangThaiValue = Request.Form["TrangThai"].ToString();
-                    sach.TrangThai = trangThaiValue == "true";
+                    sach.TrangThai = trangThaiValue.Contains("true");
                     
                     _context.Saches.Add(sach);
                     await _context.SaveChangesAsync();
@@ -477,7 +460,7 @@ namespace WebBanSachLg.Controllers
                 {
                     ModelState.AddModelError("", ex.Message);
                 }
-            }
+
 
             ViewBag.DanhMucs = new SelectList(_context.DanhMucs.Where(d => d.TrangThai == true), "Id", "TenDanhMuc", sach.DanhMucId);
             ViewBag.TacGias = new SelectList(_context.TacGia.Where(t => t.TrangThai == true), "Id", "TenTacGia", sach.TacGiaId);
@@ -511,8 +494,7 @@ namespace WebBanSachLg.Controllers
 
             if (id != sach.Id) return NotFound();
 
-            if (ModelState.IsValid)
-            {
+           
                 try
                 {
                     var existingSach = await _context.Saches.FindAsync(id);
@@ -554,7 +536,7 @@ namespace WebBanSachLg.Controllers
                     existingSach.NhaXuatBanId = sach.NhaXuatBanId;
 
                     var trangThaiValue = Request.Form["TrangThai"].ToString();
-                    existingSach.TrangThai = trangThaiValue == "true";
+                    existingSach.TrangThai = trangThaiValue.Contains("true");
                     
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Cập nhật sách thành công!";
@@ -570,7 +552,6 @@ namespace WebBanSachLg.Controllers
                 {
                     ModelState.AddModelError("", ex.Message);
                 }
-            }
 
             ViewBag.DanhMucs = new SelectList(_context.DanhMucs.Where(d => d.TrangThai == true), "Id", "TenDanhMuc", sach.DanhMucId);
             ViewBag.TacGias = new SelectList(_context.TacGia.Where(t => t.TrangThai == true), "Id", "TenTacGia", sach.TacGiaId);

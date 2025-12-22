@@ -85,12 +85,12 @@ function showToast(message, type = 'success') {
     const toastElement = template.content.cloneNode(true);
     const toast = $(toastElement.querySelector('.toast'));
     
-    // Set type and icon
+    // Set type and icon - Icon mềm mại hơn
     const icons = {
-        success: 'fas fa-check-circle',
-        error: 'fas fa-exclamation-circle',
-        warning: 'fas fa-exclamation-triangle',
-        info: 'fas fa-info-circle'
+        success: 'far fa-check-circle',
+        error: 'far fa-times-circle',
+        warning: 'far fa-exclamation-triangle',
+        info: 'far fa-info-circle'
     };
     
     toast.addClass(type);

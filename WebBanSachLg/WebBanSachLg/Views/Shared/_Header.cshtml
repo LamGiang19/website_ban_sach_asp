@@ -11,28 +11,40 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
-                    <div class="header-links text-white">
+                    <div class="header-links text-white d-flex align-items-center justify-content-end gap-2">
                         @if (string.IsNullOrEmpty(Context.Session.GetString("UserId")))
                         {
-                            <a asp-controller="TaiKhoan" asp-action="DangKy" class="text-white me-2"><i class="fas fa-user-plus"></i> Đăng ký</a>
-                            <span class="text-white">/</span>
-                            <a asp-controller="TaiKhoan" asp-action="DangNhap" class="text-white ms-2"><i class="fas fa-sign-in-alt"></i> Đăng nhập</a>
+                            <a asp-controller="TaiKhoan" asp-action="DangKy" class="btn-header-link text-white">
+                                <i class="far fa-user-plus"></i> <span>Đăng ký</span>
+                            </a>
+                            <span class="text-white">|</span>
+                            <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn-header-link text-white">
+                                <i class="far fa-sign-in-alt"></i> <span>Đăng nhập</span>
+                            </a>
                         }
                         else
                         {
-                            <span class="text-white me-2">
-                                <i class="fas fa-user"></i> 
-                                @Context.Session.GetString("HoTen")
-                                @if (Context.Session.GetString("VaiTro") == "Admin")
-                                {
-                                    <span class="badge bg-danger ms-1">Admin</span>
-                                }
-                            </span>
+                            <div class="user-info d-flex align-items-center gap-2">
+                                <div class="user-avatar">
+                                    <i class="far fa-user-circle"></i>
+                                </div>
+                                <div class="user-details">
+                                    <span class="text-white fw-semibold">
+                                        @Context.Session.GetString("HoTen")
+                                        @if (Context.Session.GetString("VaiTro") == "Admin")
+                                        {
+                                            <span class="badge bg-danger ms-1 rounded-pill">Admin</span>
+                                        }
+                                    </span>
+                                </div>
+                            </div>
                             <span class="text-white">|</span>
-                            <a asp-controller="TaiKhoan" asp-action="DangXuat" class="text-white ms-2"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                            <a asp-controller="TaiKhoan" asp-action="DangXuat" class="btn-header-link text-white">
+                                <i class="far fa-sign-out-alt"></i> <span>Đăng xuất</span>
+                            </a>
                         }
-                        <a asp-controller="GioHang" asp-action="Index" class="btn btn-sm btn-cart-top text-white ms-2">
-                            <i class="fas fa-shopping-cart"></i> Giỏ hàng <span class="cart-count">0</span>
+                        <a asp-controller="GioHang" asp-action="Index" class="btn btn-sm btn-cart-top text-white">
+                            <i class="fas fa-shopping-cart"></i> <span>Giỏ hàng</span> <span class="cart-count badge bg-white text-orange ms-1">0</span>
                         </a>
                     </div>
                 </div>
@@ -60,7 +72,7 @@
                         </select>
                         <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm..." aria-label="Search">
                         <button class="btn btn-orange" type="submit">
-                            <i class="fas fa-search"></i>
+                            <i class="far fa-search"></i>
                         </button>
                     </div>
                 </form>
@@ -78,7 +90,7 @@
             <div class="row align-items-center">
                 <div class="col-md-3">
                     <span class="category-nav-title text-white">
-                        <i class="fas fa-bars"></i> DANH MỤC SẢN PHẨM
+                        <i class="far fa-bars"></i> DANH MỤC SẢN PHẨM
                     </span>
                 </div>
                 <div class="col-md-9">
@@ -93,15 +105,7 @@
                         }
                         @if (Context.Session.GetString("VaiTro") == "Admin")
                         {
-                            <li><a asp-controller="Admin" asp-action="Index" class="text-white"><i class="fas fa-cog"></i> Quản trị</a></li>
-                        }
-                        @if (string.IsNullOrEmpty(Context.Session.GetString("UserId")))
-                        {
-                            <li class="ms-auto"><a asp-controller="TaiKhoan" asp-action="DangKy" class="text-white">Đăng ký</a> / <a asp-controller="TaiKhoan" asp-action="DangNhap" class="text-white">Đăng nhập</a></li>
-                        }
-                        else
-                        {
-                            <li class="ms-auto"><a asp-controller="TaiKhoan" asp-action="DangXuat" class="text-white">Đăng xuất</a></li>
+                            <li><a asp-controller="Admin" asp-action="Index" class="text-white"><i class="far fa-cog"></i> Quản trị</a></li>
                         }
                     </ul>
                 </div>

@@ -1,0 +1,110 @@
+@{
+    ViewData["Title"] = "Gửi link đặt lại mật khẩu - Vua Sách Cũ";
+}
+
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card auth-card">
+                    <div class="card-header auth-card-header">
+                        <i class="far fa-envelope-open"></i>
+                        <h3>Email đã được gửi</h3>
+                    </div>
+                    <div class="card-body auth-card-body text-center">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        @if (TempData["WarningMessage"] != null)
+                        {
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["WarningMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <div class="mb-4">
+                            <i class="far fa-envelope-open fa-4x text-success mb-3"></i>
+                            <p class="lead">Vui lòng kiểm tra hộp thư email của bạn</p>
+                        </div>
+
+                        @if (ViewBag.Email != null)
+                        {
+                            <div class="alert alert-info">
+                                <p class="mb-2"><strong><i class="far fa-envelope me-2"></i>Email:</strong> @ViewBag.Email</p>
+                                <p class="mb-0"><small>Link đặt lại mật khẩu sẽ hết hạn sau <strong>1 giờ</strong>.</small></p>
+                            </div>
+                        }
+
+                        @if (ViewBag.ResetLink != null)
+                        {
+                            <div class="mb-4">
+                                <p class="text-muted mb-3">
+                                    <i class="far fa-info-circle"></i> 
+                                    Không thể gửi email tự động. Vui lòng sử dụng link bên dưới:
+                                </p>
+                                <label class="form-label fw-bold">Link đặt lại mật khẩu:</label>
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" id="resetLink" value="@ViewBag.ResetLink" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="copyResetLink()">
+                                        <i class="far fa-copy"></i> Sao chép
+                                    </button>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <a href="@ViewBag.ResetLink" class="btn btn-orange btn-lg" target="_blank">
+                                        <i class="far fa-external-link-alt"></i> Mở link đặt lại mật khẩu
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-light border">
+                                <p class="mb-2">
+                                    <i class="far fa-check-circle text-success me-2"></i>
+                                    <strong>Email đã được gửi thành công!</strong>
+                                </p>
+                                <p class="mb-0 small">
+                                    Vui lòng kiểm tra hộp thư đến (và cả thư mục spam) để tìm email đặt lại mật khẩu.
+                                </p>
+                            </div>
+                        }
+
+                        <div class="auth-links">
+                            <p>
+                                <a asp-action="DangNhap">
+                                    <i class="far fa-arrow-left"></i> Quay lại đăng nhập
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyResetLink() {
+            var copyText = document.getElementById("resetLink");
+            if (copyText) {
+                copyText.select();
+                copyText.setSelectionRange(0, 99999);
+                navigator.clipboard.writeText(copyText.value).then(function() {
+                    if (typeof showSuccess === 'function') {
+                        showSuccess("Đã sao chép link vào clipboard!");
+                    } else {
+                        alert("Đã sao chép link vào clipboard!");
+                    }
+                });
+            }
+        }
+    </script>
+}
+

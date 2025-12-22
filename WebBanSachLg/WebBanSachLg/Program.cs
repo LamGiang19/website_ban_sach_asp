@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using WebBanSachLg.Database;
+using WebBanSachLg.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDistributedMemoryCache();
+builder.Services.AddMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -15,6 +17,9 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddDbContext<WebBanSachDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Đăng ký Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

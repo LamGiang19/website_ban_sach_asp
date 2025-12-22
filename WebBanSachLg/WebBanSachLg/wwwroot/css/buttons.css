@@ -1,0 +1,259 @@
+/* ============================================
+   BUTTON STYLES - Bo tròn và mềm mại
+   ============================================ */
+
+/* Tất cả các nút mặc định */
+.btn {
+    border-radius: 20px;
+    padding: 8px 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Nút nhỏ */
+.btn-sm {
+    border-radius: 18px;
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+/* Nút lớn */
+.btn-lg {
+    border-radius: 30px;
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+/* Nút primary */
+.btn-primary {
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+}
+
+/* Nút secondary */
+.btn-secondary {
+    border-radius: 25px;
+    background: #6c757d;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+/* Nút danger */
+.btn-danger {
+    border-radius: 25px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #e081eb 0%, #e4455a 100%);
+}
+
+/* Nút success */
+.btn-success {
+    border-radius: 25px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #3d9be8 0%, #00d9e8 100%);
+}
+
+/* Nút warning */
+.btn-warning {
+    border-radius: 25px;
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    border: none;
+    color: #000;
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #f85d8f 0%, #fdd630 100%);
+    color: #000;
+}
+
+/* Nút info */
+.btn-info {
+    border-radius: 25px;
+    background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+    border: none;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #28b8b9 0%, #2a0754 100%);
+}
+
+/* Icon trong nút */
+.btn i {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+}
+
+.btn:hover i {
+    transform: scale(1.15) rotate(5deg);
+}
+
+.btn-primary:hover i,
+.btn-success:hover i,
+.btn-info:hover i {
+    transform: scale(1.2) rotate(-5deg);
+}
+
+.btn-danger:hover i {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Nút disabled */
+.btn:disabled,
+.btn.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn:disabled:hover,
+.btn.disabled:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Nút outline */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-danger,
+.btn-outline-success,
+.btn-outline-warning,
+.btn-outline-info {
+    border-radius: 25px;
+    border-width: 2px;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-danger:hover,
+.btn-outline-success:hover,
+.btn-outline-warning:hover,
+.btn-outline-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon styles - Mềm mại hơn */
+i[class*="fa-"] {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+}
+
+/* Icon trong links */
+a:hover i[class*="fa-"] {
+    transform: scale(1.1) rotate(5deg);
+    color: var(--orange-primary);
+}
+
+/* Icon trong cards */
+.card:hover i[class*="fa-"] {
+    transform: scale(1.1);
+}
+
+/* Icon trong header */
+.header-contact i,
+.header-links i {
+    opacity: 0.85;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+.header-contact:hover i,
+.header-links a:hover i {
+    opacity: 1;
+    transform: scale(1.2) rotate(-5deg);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Icon trong product actions */
+.product-actions .btn i {
+    margin-right: 6px;
+}
+
+.product-actions .btn:hover i {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Icon trong search */
+.search-form .btn i {
+    transition: transform 0.3s ease;
+}
+
+.search-form .btn:hover i {
+    transform: scale(1.3) rotate(15deg);
+}
+
+/* Icon trong category nav */
+.category-nav-list a i {
+    transition: transform 0.3s ease;
+}
+
+.category-nav-list a:hover i {
+    transform: scale(1.2) rotate(10deg);
+}
+
+/* Icon trong cart */
+.btn-cart-top i {
+    transition: transform 0.3s ease;
+}
+
+.btn-cart-top:hover i {
+    transform: scale(1.2) rotate(-10deg);
+}
+
+/* Icon trong toast */
+.toast-icon {
+    transition: transform 0.3s ease;
+}
+
+.toast:hover .toast-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+

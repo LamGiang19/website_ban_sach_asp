@@ -34,13 +34,13 @@
             @if (Model.SoLuong > 0)
             {
                 <button class="btn btn-sm btn-orange add-to-cart" data-id="@Model.Id" data-price="@Model.Gia" data-name="@Model.TenSach" data-image="@imagePath">
-                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                    <i class="far fa-cart-plus"></i> Thêm vào giỏ hàng
                 </button>
             }
             else
             {
                 <button class="btn btn-sm btn-secondary" disabled>
-                    <i class="fas fa-times"></i> Hết hàng
+                    <i class="far fa-times-circle"></i> Hết hàng
                 </button>
             }
         </div>

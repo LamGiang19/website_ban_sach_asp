@@ -1,8 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using System.Security.Cryptography;
+using System.Text;
 using WebBanSachLg.Database;
 using WebBanSachLg.Helpers;
 using WebBanSachLg.Models;
+using WebBanSachLg.Services;
 
 namespace WebBanSachLg.Controllers
 {
@@ -10,11 +14,15 @@ namespace WebBanSachLg.Controllers
     {
         private readonly WebBanSachDbContext _context;
         private readonly ILogger<TaiKhoanController> _logger;
+        private readonly IMemoryCache _cache;
+        private readonly IEmailService _emailService;
 
-        public TaiKhoanController(WebBanSachDbContext context, ILogger<TaiKhoanController> logger)
+        public TaiKhoanController(WebBanSachDbContext context, ILogger<TaiKhoanController> logger, IMemoryCache cache, IEmailService emailService)
         {
             _context = context;
             _logger = logger;
+            _cache = cache;
+            _emailService = emailService;
         }
 
         public IActionResult DangKy()
@@ -278,6 +286,158 @@ namespace WebBanSachLg.Controllers
 
             TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
             return RedirectToAction("DoiMatKhau");
+        }
+
+        public IActionResult QuenMatKhau()
+        {
+            if (IsLoggedIn())
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuenMatKhau(QuenMatKhauViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var taiKhoan = await _context.TaiKhoans
+                .FirstOrDefaultAsync(t => t.Email == model.Email);
+
+            if (taiKhoan == null)
+            {
+                // Không tiết lộ email có tồn tại hay không (bảo mật)
+                TempData["SuccessMessage"] = "Nếu email tồn tại trong hệ thống, bạn sẽ nhận được link đặt lại mật khẩu.";
+                return RedirectToAction("QuenMatKhau");
+            }
+
+            if (taiKhoan.TrangThai != true)
+            {
+                ModelState.AddModelError("", "Tài khoản đã bị khóa");
+                return View(model);
+            }
+
+            // Tạo token reset
+            var token = GenerateResetToken();
+            var cacheKey = $"ResetPassword_{taiKhoan.Email}_{token}";
+            
+            // Lưu token vào cache với thời gian hết hạn 1 giờ
+            _cache.Set(cacheKey, taiKhoan.Id, TimeSpan.FromHours(1));
+
+            // Tạo link reset
+            var resetLink = Url.Action("ResetMatKhau", "TaiKhoan", new { email = taiKhoan.Email, token = token }, Request.Scheme);
+            
+            if (string.IsNullOrEmpty(resetLink))
+            {
+                ModelState.AddModelError("", "Không thể tạo link đặt lại mật khẩu. Vui lòng thử lại.");
+                return View(model);
+            }
+
+            // Gửi email đặt lại mật khẩu
+            var emailSent = await _emailService.SendPasswordResetEmailAsync(
+                taiKhoan.Email, 
+                resetLink, 
+                taiKhoan.HoTen ?? taiKhoan.TenDangNhap
+            );
+
+            if (emailSent)
+            {
+                TempData["SuccessMessage"] = "Email đặt lại mật khẩu đã được gửi đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư.";
+            }
+            else
+            {
+                // Nếu không gửi được email, vẫn hiển thị link (fallback cho development)
+                TempData["ResetLink"] = resetLink;
+                TempData["Email"] = taiKhoan.Email;
+                TempData["WarningMessage"] = "Không thể gửi email. Vui lòng sử dụng link bên dưới để đặt lại mật khẩu.";
+            }
+
+            return RedirectToAction("QuenMatKhauSuccess");
+        }
+
+        public IActionResult QuenMatKhauSuccess()
+        {
+            // Lấy dữ liệu từ TempData (có thể null nếu email đã được gửi thành công)
+            ViewBag.ResetLink = TempData["ResetLink"] as string;
+            ViewBag.Email = TempData["Email"] as string;
+            
+            return View();
+        }
+
+        public IActionResult ResetMatKhau(string? email, string? token)
+        {
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
+            {
+                TempData["ErrorMessage"] = "Link đặt lại mật khẩu không hợp lệ";
+                return RedirectToAction("QuenMatKhau");
+            }
+
+            var cacheKey = $"ResetPassword_{email}_{token}";
+            if (!_cache.TryGetValue(cacheKey, out int userId))
+            {
+                TempData["ErrorMessage"] = "Link đặt lại mật khẩu đã hết hạn hoặc không hợp lệ";
+                return RedirectToAction("QuenMatKhau");
+            }
+
+            var model = new ResetMatKhauViewModel
+            {
+                Email = email,
+                Token = token
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetMatKhau(ResetMatKhauViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var cacheKey = $"ResetPassword_{model.Email}_{model.Token}";
+            if (!_cache.TryGetValue(cacheKey, out int userId))
+            {
+                TempData["ErrorMessage"] = "Link đặt lại mật khẩu đã hết hạn hoặc không hợp lệ";
+                return RedirectToAction("QuenMatKhau");
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FindAsync(userId);
+            if (taiKhoan == null || taiKhoan.Email != model.Email)
+            {
+                TempData["ErrorMessage"] = "Tài khoản không tồn tại";
+                return RedirectToAction("QuenMatKhau");
+            }
+
+            // Cập nhật mật khẩu mới
+            taiKhoan.MatKhau = PasswordHelper.HashPassword(model.MatKhauMoi);
+            await _context.SaveChangesAsync();
+
+            // Xóa token khỏi cache
+            _cache.Remove(cacheKey);
+
+            TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công! Vui lòng đăng nhập với mật khẩu mới.";
+            return RedirectToAction("DangNhap");
+        }
+
+        private string GenerateResetToken()
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                var bytes = new byte[32];
+                rng.GetBytes(bytes);
+                return Convert.ToBase64String(bytes)
+                    .Replace("+", "-")
+                    .Replace("/", "_")
+                    .Replace("=", "");
+            }
         }
 
         private bool IsLoggedIn()

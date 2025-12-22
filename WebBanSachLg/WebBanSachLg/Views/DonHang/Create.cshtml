@@ -1,0 +1,101 @@
+@model WebBanSachLg.Models.DonHangCreateViewModel
+@{
+    ViewData["Title"] = "Đặt hàng - Vua Sách Cũ";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-shopping-bag"></i> Đặt hàng</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Thông tin giao hàng</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="HoTenNguoiNhan" class="form-label"></label>
+                            <input asp-for="HoTenNguoiNhan" class="form-control" />
+                            <span asp-validation-for="HoTenNguoiNhan" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SoDienThoai" class="form-label"></label>
+                            <input asp-for="SoDienThoai" class="form-control" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="DiaChiGiaoHang" class="form-label"></label>
+                            <textarea asp-for="DiaChiGiaoHang" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="DiaChiGiaoHang" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GhiChu" class="form-label"></label>
+                            <textarea asp-for="GhiChu" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="GhiChu" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-controller="GioHang" asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại giỏ hàng
+                            </a>
+                            <button type="submit" class="btn btn-orange">
+                                <i class="fas fa-check"></i> Xác nhận đặt hàng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Đơn hàng của bạn</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.GioHangItems != null && Model.GioHangItems.Any())
+                    {
+                        @foreach (var item in Model.GioHangItems)
+                        {
+                            var imagePath = WebBanSachLg.Helpers.FileUploadHelper.GetSachImagePath(item.HinhAnh);
+                            <div class="d-flex mb-3 pb-3 border-bottom">
+                                <div class="flex-shrink-0">
+                                    @if (string.IsNullOrEmpty(item.HinhAnh))
+                                    {
+                                        <div class="cart-placeholder-small">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <img src="@imagePath" alt="@item.TenSach" style="width: 60px; height: 80px; object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'cart-placeholder-small\'><i class=\'fas fa-book\'></i></div>';">
+                                    }
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">@item.TenSach</h6>
+                                    <p class="mb-1 text-muted">Số lượng: @item.SoLuong</p>
+                                    <p class="mb-0"><strong>@item.ThanhTien.ToString("N0")₫</strong></p>
+                                </div>
+                            </div>
+                        }
+                        <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                            <strong>Tổng tiền:</strong>
+                            <strong class="text-danger">@Model.TongTien.ToString("N0")₫</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

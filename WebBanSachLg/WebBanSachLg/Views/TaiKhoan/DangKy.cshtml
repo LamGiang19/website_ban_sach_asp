@@ -1,0 +1,137 @@
+@model WebBanSachLg.Models.DangKyViewModel
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card auth-card">
+                    <div class="card-header auth-card-header">
+                        <i class="fas fa-user-plus"></i>
+                        <h3>Đăng ký tài khoản</h3>
+                    </div>
+                    <div class="card-body auth-card-body">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <form asp-action="DangKy" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="auth-form-group">
+                                        <label asp-for="TenDangNhap"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="far fa-user"></i>
+                                            </span>
+                                            <input asp-for="TenDangNhap" class="form-control" placeholder="Nhập tên đăng nhập" />
+                                        </div>
+                                        <span asp-validation-for="TenDangNhap" class="field-validation-error"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="auth-form-group">
+                                        <label asp-for="HoTen"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="far fa-id-card"></i>
+                                            </span>
+                                            <input asp-for="HoTen" class="form-control" placeholder="Nhập họ tên" />
+                                        </div>
+                                        <span asp-validation-for="HoTen" class="field-validation-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="auth-form-group">
+                                        <label asp-for="MatKhau"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="far fa-lock"></i>
+                                            </span>
+                                            <input asp-for="MatKhau" class="form-control" placeholder="Nhập mật khẩu" />
+                                        </div>
+                                        <span asp-validation-for="MatKhau" class="field-validation-error"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="auth-form-group">
+                                        <label asp-for="XacNhanMatKhau"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="far fa-lock-alt"></i>
+                                            </span>
+                                            <input asp-for="XacNhanMatKhau" class="form-control" placeholder="Nhập lại mật khẩu" />
+                                        </div>
+                                        <span asp-validation-for="XacNhanMatKhau" class="field-validation-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="auth-form-group">
+                                        <label asp-for="Email"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="far fa-envelope"></i>
+                                            </span>
+                                            <input asp-for="Email" type="email" class="form-control" placeholder="Nhập email" />
+                                        </div>
+                                        <span asp-validation-for="Email" class="field-validation-error"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="auth-form-group">
+                                        <label asp-for="SoDienThoai"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="far fa-phone"></i>
+                                            </span>
+                                            <input asp-for="SoDienThoai" class="form-control" placeholder="Nhập số điện thoại (tùy chọn)" />
+                                        </div>
+                                        <span asp-validation-for="SoDienThoai" class="field-validation-error"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="auth-form-group">
+                                <label asp-for="DiaChi"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="align-items: flex-start; padding-top: 12px;">
+                                        <i class="far fa-map-marker-alt"></i>
+                                    </span>
+                                    <textarea asp-for="DiaChi" class="form-control" rows="3" placeholder="Nhập địa chỉ (tùy chọn)"></textarea>
+                                </div>
+                                <span asp-validation-for="DiaChi" class="field-validation-error"></span>
+                            </div>
+
+                            <button type="submit" class="auth-submit-btn">
+                                <i class="fas fa-user-plus"></i> Đăng ký
+                            </button>
+
+                            <div class="auth-links">
+                                <p>Đã có tài khoản? <a asp-action="DangNhap"><i class="far fa-sign-in-alt"></i> Đăng nhập ngay</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

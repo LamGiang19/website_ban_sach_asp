@@ -1,0 +1,197 @@
+@model WebBanSachLg.Models.GioHangIndexViewModel
+@{
+    ViewData["Title"] = "Giỏ hàng - Vua Sách Cũ";
+}
+
+<div class="container mt-4">
+    <h2><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+
+    @if (Model.Items != null && Model.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Hình ảnh</th>
+                        <th>Tên sách</th>
+                        <th>Giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var imagePath = WebBanSachLg.Helpers.FileUploadHelper.GetSachImagePath(item.HinhAnh);
+                        <tr data-item-id="@item.Id">
+                            <td>
+                                @if (string.IsNullOrEmpty(item.HinhAnh))
+                                {
+                                    <div class="cart-placeholder">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <img src="@imagePath" alt="@item.TenSach" style="width: 80px; height: 100px; object-fit: cover;" onerror="this.onerror=null; this.outerHTML='<div class=\'cart-placeholder\'><i class=\'fas fa-book\'></i></div>';">
+                                }
+                            </td>
+                            <td>
+                                <a asp-controller="Sach" asp-action="Details" asp-route-id="@item.SachId">@item.TenSach</a>
+                            </td>
+                            <td>@item.Gia.ToString("N0")₫</td>
+                            <td>
+                                <div class="input-group" style="width: 120px;">
+                                    <button class="btn btn-sm btn-outline-secondary btn-update-quantity" data-id="@item.Id" data-action="decrease">-</button>
+                                    <input type="number" class="form-control form-control-sm text-center quantity-input" value="@item.SoLuong" min="1" max="@item.SoLuongTon" data-id="@item.Id">
+                                    <button class="btn btn-sm btn-outline-secondary btn-update-quantity" data-id="@item.Id" data-action="increase">+</button>
+                                </div>
+                                @if (item.SoLuong > item.SoLuongTon)
+                                {
+                                    <small class="text-danger">Chỉ còn @item.SoLuongTon cuốn</small>
+                                }
+                            </td>
+                            <td class="item-total">@item.ThanhTien.ToString("N0")₫</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger btn-remove-item" data-id="@item.Id">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-end"><strong>Tổng tiền:</strong></td>
+                        <td colspan="2"><strong class="text-danger" id="tongTien">@Model.TongTien.ToString("N0")₫</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="text-end mt-3">
+            <a asp-controller="Sach" asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Tiếp tục mua hàng
+            </a>
+            <a asp-controller="DonHang" asp-action="Create" class="btn btn-orange">
+                <i class="fas fa-check"></i> Thanh toán
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+            <p>Giỏ hàng của bạn đang trống</p>
+            <a asp-controller="Sach" asp-action="Index" class="btn btn-orange">
+                <i class="fas fa-shopping-bag"></i> Mua sắm ngay
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Update quantity
+            $('.btn-update-quantity').click(function() {
+                var itemId = $(this).data('id');
+                var action = $(this).data('action');
+                var input = $('.quantity-input[data-id="' + itemId + '"]');
+                var currentQty = parseInt(input.val());
+                var maxQty = parseInt(input.attr('max'));
+
+                if (action === 'increase' && currentQty < maxQty) {
+                    input.val(currentQty + 1);
+                    updateQuantity(itemId, currentQty + 1);
+                } else if (action === 'decrease' && currentQty > 1) {
+                    input.val(currentQty - 1);
+                    updateQuantity(itemId, currentQty - 1);
+                }
+            });
+
+            $('.quantity-input').change(function() {
+                var itemId = $(this).data('id');
+                var qty = parseInt($(this).val());
+                var maxQty = parseInt($(this).attr('max'));
+                
+                if (qty < 1) qty = 1;
+                if (qty > maxQty) qty = maxQty;
+                
+                $(this).val(qty);
+                updateQuantity(itemId, qty);
+            });
+
+            // Remove item
+            $('.btn-remove-item').click(function() {
+                var itemId = $(this).data('id');
+                
+                showConfirm(
+                    'Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?',
+                    function() {
+                        $.ajax({
+                            url: '@Url.Action("Remove", "GioHang")',
+                            type: 'POST',
+                            data: { chiTietGioHangId: itemId },
+                            success: function(response) {
+                                if (response.success) {
+                                    showSuccess(response.message || 'Đã xóa sản phẩm khỏi giỏ hàng');
+                                    $('tr[data-item-id="' + itemId + '"]').fadeOut(function() {
+                                        $(this).remove();
+                                        updateCartTotal();
+                                        updateCartCount();
+                                        
+                                        if ($('tbody tr').length === 0) {
+                                            location.reload();
+                                        }
+                                    });
+                                } else {
+                                    showError(response.message || 'Có lỗi xảy ra');
+                                }
+                            },
+                            error: function() {
+                                showError('Có lỗi xảy ra. Vui lòng thử lại.');
+                            }
+                        });
+                    }
+                );
+            });
+
+            function updateQuantity(itemId, qty) {
+                $.ajax({
+                    url: '@Url.Action("UpdateQuantity", "GioHang")',
+                    type: 'POST',
+                    data: { chiTietGioHangId: itemId, soLuong: qty },
+                    success: function(response) {
+                        if (response.success) {
+                            var row = $('tr[data-item-id="' + itemId + '"]');
+                            var price = parseFloat(row.find('td:eq(2)').text().replace(/[^\d]/g, ''));
+                            var total = price * qty;
+                            row.find('.item-total').text(total.toLocaleString('vi-VN') + '₫');
+                            updateCartTotal();
+                            updateCartCount();
+                        } else {
+                            showError(response.message || 'Có lỗi xảy ra');
+                            location.reload();
+                        }
+                    },
+                    error: function() {
+                        showError('Có lỗi xảy ra. Vui lòng thử lại.');
+                        location.reload();
+                    }
+                });
+            }
+
+            function updateCartTotal() {
+                var total = 0;
+                $('.item-total').each(function() {
+                    var text = $(this).text().replace(/[^\d]/g, '');
+                    total += parseFloat(text);
+                });
+                $('#tongTien').text(total.toLocaleString('vi-VN') + '₫');
+            }
+        });
+    </script>
+}
+

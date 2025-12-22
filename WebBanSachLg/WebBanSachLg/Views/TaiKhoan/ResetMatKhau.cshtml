@@ -1,0 +1,79 @@
+@model WebBanSachLg.Models.ResetMatKhauViewModel
+@{
+    ViewData["Title"] = "Đặt lại mật khẩu - Vua Sách Cũ";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-orange text-white text-center">
+                    <h3><i class="far fa-key"></i> Đặt lại mật khẩu</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <p class="text-muted mb-4">
+                        Vui lòng nhập mật khẩu mới cho tài khoản: <strong>@Model.Email</strong>
+                    </p>
+
+                    <form asp-action="ResetMatKhau" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <input type="hidden" asp-for="Token" />
+                        <input type="hidden" asp-for="Email" />
+
+                        <div class="mb-3">
+                            <label asp-for="MatKhauMoi" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="far fa-lock"></i></span>
+                                <input asp-for="MatKhauMoi" class="form-control" placeholder="Nhập mật khẩu mới" />
+                            </div>
+                            <span asp-validation-for="MatKhauMoi" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="XacNhanMatKhauMoi" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="far fa-lock"></i></span>
+                                <input asp-for="XacNhanMatKhauMoi" class="form-control" placeholder="Xác nhận mật khẩu mới" />
+                            </div>
+                            <span asp-validation-for="XacNhanMatKhauMoi" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-orange btn-lg">
+                                <i class="far fa-check-circle"></i> Đặt lại mật khẩu
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a asp-action="DangNhap" class="text-orange">
+                                <i class="far fa-arrow-left"></i> Quay lại đăng nhập
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
